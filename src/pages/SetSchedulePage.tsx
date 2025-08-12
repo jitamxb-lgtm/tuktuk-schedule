@@ -76,7 +76,7 @@ export default function SetSchedulePage() {
     if (newTodo.trim() === '') return
 
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('todos')
         .insert([{ task: newTodo.trim(), is_complete: false }])
         .select()
