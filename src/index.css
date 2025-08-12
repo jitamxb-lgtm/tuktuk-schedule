@@ -380,6 +380,41 @@ td {
   color: #64748b;
 }
 
+.todo-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.todo-day-group {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.day-header {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.todo-day-group .todo-list {
+  margin: 0;
+}
+
+.todo-day-group .todo-item {
+  background: white;
+  margin-bottom: 8px;
+}
+
+.todo-day-group .todo-item:last-child {
+  margin-bottom: 0;
+}
+
 @media (max-width: 768px) {
   .container, .todo-container {
     margin: 16px;

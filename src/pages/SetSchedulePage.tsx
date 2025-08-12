@@ -1,6 +1,50 @@
 import { useState, useEffect } from 'react'
 import { supabase, type Todo } from '../lib/supabase'
 
+// Helper function to format date
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString)
+  const today = new Date()
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+  
+  if (date.toDateString() === today.toDateString()) {
+    return 'Today'
+  } else if (date.toDateString() === yesterday.toDateString()) {
+    return 'Yesterday'
+  } else {
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    })
+  }
+}
+
+// Helper function to group todos by date
+const groupTodosByDate = (todos: Todo[]) => {
+  const groups: { [key: string]: Todo[] } = {}
+  
+  todos.forEach(todo => {
+    const dateKey = new Date(todo.created_at).toDateString()
+    if (!groups[dateKey]) {
+      groups[dateKey] = []
+    }
+    groups[dateKey].push(todo)
+  })
+  
+  // Sort groups by date (most recent first)
+  const sortedGroups = Object.keys(groups)
+    .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+    .reduce((acc, key) => {
+      acc[key] = groups[key]
+      return acc
+    }, {} as { [key: string]: Todo[] })
+  
+  return sortedGroups
+}
+
 export default function SetSchedulePage() {
   const [todos, setTodos] = useState<Todo[]>([])
   const [newTodo, setNewTodo] = useState('')
@@ -121,28 +165,35 @@ export default function SetSchedulePage() {
           <p>Loading todos...</p>
         </div>
       ) : (
-        <ul className="todo-list">
+        <div className="todo-groups">
           {todos.length === 0 ? (
-            <li className="empty-state">
+            <div className="empty-state">
               No tasks yet. Add your first to-do above!
-            </li>
+            </div>
           ) : (
-            todos.map((todo) => (
-              <li
-                key={todo.id}
-                className={`todo-item ${todo.is_complete ? 'completed' : ''}`}
-              >
-                <input
-                  type="checkbox"
-                  checked={todo.is_complete}
-                  onChange={(e) => toggleTodo(todo.id, e.target.checked)}
-                />
-                <span>{todo.task}</span>
-                <button onClick={() => deleteTodo(todo.id)}>Delete</button>
-              </li>
+            Object.entries(groupTodosByDate(todos)).map(([dateKey, dayTodos]) => (
+              <div key={dateKey} className="todo-day-group">
+                <h3 className="day-header">{formatDate(dateKey)}</h3>
+                <ul className="todo-list">
+                  {dayTodos.map((todo) => (
+                    <li
+                      key={todo.id}
+                      className={`todo-item ${todo.is_complete ? 'completed' : ''}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={todo.is_complete}
+                        onChange={(e) => toggleTodo(todo.id, e.target.checked)}
+                      />
+                      <span>{todo.task}</span>
+                      <button onClick={() => deleteTodo(todo.id)}>Delete</button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))
           )}
-        </ul>
+        </div>
       )}
     </div>
   )
