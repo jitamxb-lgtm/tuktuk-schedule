@@ -143,81 +143,58 @@ export default function SetSchedulePage() {
   }, [])
 
   return (
-    <div className="todo-page">
+    <div className="todo-container">
       <div className="header">
-        <h1>Task Management</h1>
-        <p>Organize your daily tasks and track your progress efficiently</p>
+        <h1>Daily To-Do List</h1>
+        <p>Manage your daily tasks and mark them as complete.</p>
       </div>
 
-      <div className="todo-content">
-        <div className="todo-input-card">
-          <h2>Add New Task</h2>
-          <div className="input-group">
-            <input
-              type="text"
-              value={newTodo}
-              onChange={(e) => setNewTodo(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="What needs to be done?"
-              className="task-input"
-            />
-            <button onClick={addTodo} className="add-button">
-              <span>Add Task</span>
-            </button>
-          </div>
+      <div className="todo-input-section">
+        <input
+          type="text"
+          value={newTodo}
+          onChange={(e) => setNewTodo(e.target.value)}
+          onKeyPress={handleKeyPress}
+          placeholder="Add a new to-do..."
+        />
+        <button onClick={addTodo}>Add To-Do</button>
+      </div>
+
+      {loading ? (
+        <div className="loading">
+          <p>Loading todos...</p>
         </div>
-
-        {loading ? (
-          <div className="loading-card">
-            <div className="loading-spinner"></div>
-            <p>Loading your tasks...</p>
-          </div>
-        ) : (
-          <div className="todo-lists">
-            {todos.length === 0 ? (
-              <div className="empty-state-card">
-                <div className="empty-icon">📝</div>
-                <h3>No tasks yet</h3>
-                <p>Start by adding your first task above to get organized!</p>
+      ) : (
+        <div className="todo-groups">
+          {todos.length === 0 ? (
+            <div className="empty-state">
+              No tasks yet. Add your first to-do above!
+            </div>
+          ) : (
+            Object.entries(groupTodosByDate(todos)).map(([dateKey, dayTodos]) => (
+              <div key={dateKey} className="todo-day-group">
+                <h3 className="day-header">{formatDate(dateKey)}</h3>
+                <ul className="todo-list">
+                  {dayTodos.map((todo) => (
+                    <li
+                      key={todo.id}
+                      className={`todo-item ${todo.is_complete ? 'completed' : ''}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={todo.is_complete}
+                        onChange={(e) => toggleTodo(todo.id, e.target.checked)}
+                      />
+                      <span>{todo.task}</span>
+                      <button onClick={() => deleteTodo(todo.id)}>Delete</button>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            ) : (
-              Object.entries(groupTodosByDate(todos)).map(([dateKey, dayTodos]) => (
-                <div key={dateKey} className="todo-day-card">
-                  <div className="day-header">
-                    <h3>{formatDate(dateKey)}</h3>
-                    <span className="task-count">{dayTodos.length} task{dayTodos.length !== 1 ? 's' : ''}</span>
-                  </div>
-                  <div className="todo-list">
-                    {dayTodos.map((todo) => (
-                      <div
-                        key={todo.id}
-                        className={`todo-item ${todo.is_complete ? 'completed' : ''}`}
-                      >
-                        <div className="todo-content">
-                          <input
-                            type="checkbox"
-                            checked={todo.is_complete}
-                            onChange={(e) => toggleTodo(todo.id, e.target.checked)}
-                            className="todo-checkbox"
-                          />
-                          <span className="todo-text">{todo.task}</span>
-                        </div>
-                        <button 
-                          onClick={() => deleteTodo(todo.id)}
-                          className="delete-button"
-                          title="Delete task"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        )}
-      </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   )
 }
