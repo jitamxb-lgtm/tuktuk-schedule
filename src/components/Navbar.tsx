@@ -17,6 +17,12 @@ export default function Navbar() {
       >
         Set Schedule
       </Link>
+      <Link
+        to="/goal-completer"
+        className={location.pathname === '/goal-completer' ? 'active' : ''}
+      >
+        Goal Completer
+      </Link>
     </nav>
   )
 }
